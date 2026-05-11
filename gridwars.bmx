@@ -58,6 +58,7 @@ FindSetting()
 SetController()
 SetupKeyTable()
 SetUp()
+ApplyGCAxisDefaults() ' SDL must be initialized; respects Config.txt via joyAxisConfigured[]
 LoadSounds()
 
 
@@ -3421,7 +3422,7 @@ Type score
 			SetColor 255,255,255
 			DrawString("Up and Down to select letter,",SCREENW/2-250,SCREENH/2+80,3)
 			DrawString("Left and Right to select position.",SCREENW/2-250,SCREENH/2+120,3)
-			DrawString("Press Enter when done.",SCREENW/2-250,SCREENH/2+160,3)
+			DrawString("Press Enter or Bomb when done.",SCREENW/2-250,SCREENH/2+160,3)
 			name$ = ""
 			For t = 0 To 7
 				name$:+ Chr$(letter[t])
@@ -3438,7 +3439,7 @@ Type score
 			bombtime = bombtime - 1
 			If bombtime < 0 Then bombtime = 0
 
-			If KeyHit(KEY_ENTER) Or MouseHit(m_bomb) Or ..
+			If KeyHit(KEY_ENTER) Or KeyHit(k_bomb) Or MouseHit(m_bomb) Or ..
 				(JoyDown(j_pad_bomb,joyport) And controltype = 3 And bombtime = 0) Or ..
 				(JoyDown(j_d_bomb,joyport) And controltype = 0 And bombtime = 0)
 				bombtime = 20

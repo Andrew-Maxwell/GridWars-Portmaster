@@ -3,10 +3,23 @@ SuperStrict
 Import PUB.FreeJoy
 Import BRL.Volumes
 Import BRL.FileSystem
-
 Import "sound.bmx"
 Import "gridparttrail.bmx"
 Import "vectorfont.bmx"
+
+' Declare SDL GameController functions directly to avoid SDL.SDLGameController
+' importing SDL.SDLJoystick, which would replace PUB.FreeJoy as the joystick driver.
+Extern
+	Function SDL_InitSubSystem:Int(flags:Int)
+	Function SDL_QuitSubSystem(flags:Int)
+	Function SDL_NumJoysticks:Int()
+	Function SDL_IsGameController:Int(index:Int)
+	Function SDL_GameControllerOpen:Byte Ptr(index:Int)
+	Function SDL_GameControllerClose(handle:Byte Ptr)
+	Function SDL_GameControllerMapping:Byte Ptr(handle:Byte Ptr)
+End Extern
+
+Const SDL_INIT_GAMECONTROLLER:Int = $00002000
 
 
 Global g_style:Int = 0
@@ -72,8 +85,8 @@ For Local port:Int = 0 To 3
 	j[port] = New bbjoypad
 	j[port].x1id = 1
 	j[port].y1id = 2
-	j[port].x2id = 4
-	j[port].y2id = 3
+	j[port].x2id = 3
+	j[port].y2id = 4
 	j[port].x1invert = 1 'toggles between 1 And -1
 	j[port].y1invert = 1
 	j[port].x2invert = 1
@@ -126,11 +139,18 @@ Global deadbandadjust:Int  = 0
 
 Global joyport:Int = 0
 Global autofire:Int = 0
+Global joyAxisConfigured:Int[] = [False, False, False, False]  ' set True per port when axis values loaded from Config.txt
+Global joyBombConfigured:Int = False
+Global joyOptionConfigured:Int = False
+Global joyPad1Configured:Int = False
+Global joyPad2Configured:Int = False
+Global joyPad3Configured:Int = False
+Global joyPad4Configured:Int = False
 
 Global axis_move_x:Int = 0
 Global axis_move_y:Int = 1
-Global axis_fire_x:Int = 3
-Global axis_fire_y:Int = 2
+Global axis_fire_x:Int = 2
+Global axis_fire_y:Int = 3
 Global axis_move_x_inv:Int = 1   '1 or -1
 Global axis_move_y_inv:Int = 1
 Global axis_fire_x_inv:Int = 1
@@ -257,16 +277,22 @@ Function LoadConfig:Int()
 					j_config = Int(pv$)
 				Case "[Joypad Left]"
 					j_pad_1 = Int(pv$)
+					joyPad1Configured = True
 				Case "[Joypad Up]"
 					j_pad_2 = Int(pv$)
+					joyPad2Configured = True
 				Case "[Joypad Right]"
 					j_pad_3 = Int(pv$)
+					joyPad3Configured = True
 				Case "[Joypad Down]"
 					j_pad_4 = Int(pv$)
+					joyPad4Configured = True
 				Case "[Joypad Option]"
 					j_pad_option = Int(pv$)
+					joyOptionConfigured = True
 				Case "[Joypad Bomb]"
 					j_pad_bomb = Int(pv$)
+					joyBombConfigured = True
 
 				Case "[Key Bomb]"
 					k_bomb = Int(pv$)
@@ -366,6 +392,7 @@ Function LoadConfig:Int()
 						Select ax$
 							Case "[Joy Move X]"
 								j[port].x1id = Int(cn$)
+								joyAxisConfigured[port] = True
 							Case "[Joy Move Y]"
 								j[port].y1id = Int(cn$)
 							Case "[Joy Fire X]"
@@ -952,9 +979,7 @@ Function Options:Int(showgame:Int)
 		jb = 0
 		bombtime = bombtime - 1
 		If bombtime < 0 Then bombtime = 0
-		For i = 0 To 15
-			jb = jb + JoyDown(i,joyport)
-		Next
+		jb = JoyDown(j_pad_bomb,joyport)
 		If jb > 0 And bombtime = 0 And looper > 15*8 Then done = True;bombtime = 10
 		If sel = 1 And done = True
 			ret = Settings(showgame)
@@ -1067,9 +1092,7 @@ Function conf:Int(showgame:Int, st$="")
 		jb = 0
 		bombtime = bombtime - 1
 		If bombtime < 0 Then bombtime = 0
-		For i = 0 To 15
-			jb = jb + JoyDown(i,joyport)
-		Next
+		jb = JoyDown(j_pad_bomb,joyport)
 		If jb > 0 And bombtime = 0 And looper > 15*8 Then done = True;bombtime = 20
 		looper :+8
 	Wend
@@ -1157,9 +1180,7 @@ Function Settings:Int(showgame:Int)
 		jb = 0
 		bombtime = bombtime - 1
 		If bombtime < 0 Then bombtime = 0
-		For i = 0 To 15
-			jb = jb + JoyDown(i,joyport)
-		Next
+		jb = JoyDown(j_pad_bomb,joyport)
 		If jb > 0 And bombtime = 0 And looper > 15*8 Then done = True
 		If done = True
 			Select sel
@@ -1350,9 +1371,7 @@ Function VideoSettings:Int(showgame:Int)
 		jb = 0
 		bombtime = bombtime - 1
 		If bombtime < 0 Then bombtime = 0
-		For i = 0 To 15
-			jb = jb + JoyDown(i,joyport)
-		Next
+		jb = JoyDown(j_pad_bomb,joyport)
 		If jb > 0 And bombtime = 0 And looper > 15*8 Then done = True;bombtime = 20
 		If KeyHit(KEY_ENTER) Then done = True
 		If KeyHit(KEY_ESCAPE) Then done = True;sel = 10;bombtime = 20
@@ -1612,9 +1631,7 @@ Function GameSettings:Int(showgame:Int)
 		jb = 0
 		bombtime = bombtime - 1
 		If bombtime < 0 Then bombtime = 0
-		For i = 0 To 15
-			jb = jb + JoyDown(i,joyport)
-		Next
+		jb = JoyDown(j_pad_bomb,joyport)
 		If jb > 0 And bombtime = 0 And looper > 15*8 Then done = True;bombtime = 20
 		If KeyHit(KEY_ENTER) Then done = True
 		If KeyHit(KEY_ESCAPE) Then done = True;sel = 5;bombtime = 20
@@ -1831,9 +1848,7 @@ Function AudioSettings(showgame:Int)
 		jb = 0
 		bombtime = bombtime - 1
 		If bombtime < 0 Then bombtime = 0
-		For i = 0 To 15
-			jb = jb + JoyDown(i,joyport)
-		Next
+		jb = JoyDown(j_pad_bomb,joyport)
 		If jb > 0 And bombtime = 0 And looper > 15*8 Then done = True
 
 		looper :+8
@@ -1925,9 +1940,7 @@ Function ControllerSettings:Int(showgame:Int)
 		jb = 0
 		bombtime = bombtime - 1
 		If bombtime < 0 Then bombtime = 0
-		For i = 0 To 15
-			jb = jb + JoyDown(i,joyport)
-		Next
+		jb = JoyDown(j_pad_bomb,joyport)
 		If jb > 0 And bombtime = 0 And looper > 15*8 Then done = True;bombtime = 20
 
 		Select sel
@@ -2066,9 +2079,7 @@ Function HybridControllerSettings(showgame:Int)
 		jb = 0
 		bombtime = bombtime - 1
 		If bombtime < 0 Then bombtime = 0
-		For i = 0 To 7
-			jb = jb + JoyDown(i,joyport)
-		Next
+		jb = JoyDown(j_pad_bomb,joyport)
 		If (KeyDown(KEY_LEFT) Or MouseDown(1)) And bombtime = 0 Then jdmx = -1;bombtime = 20
 		If (KeyDown(KEY_RIGHT) Or MouseDown(2)) And bombtime = 0 Then jdmx = 1;bombtime = 20
 		If jb > 0 And bombtime = 0 And looper > 15*8 Then done = True;bombtime = 20
@@ -2192,9 +2203,7 @@ Function MouseControllerSettings(showgame:Int)
 		jb = 0
 		bombtime = bombtime - 1
 		If bombtime < 0 Then bombtime = 0
-		For i = 0 To 7
-			jb = jb + JoyDown(i,joyport)
-		Next
+		jb = JoyDown(j_pad_bomb,joyport)
 		If (KeyDown(KEY_LEFT) Or MouseDown(1)) And bombtime = 0 Then jdmx = -1;bombtime = 20
 		If (KeyDown(KEY_RIGHT) Or MouseDown(2)) And bombtime = 0 Then jdmx = 1;bombtime = 20
 		If jb > 0 And bombtime = 0 And looper > 15*8 Then done = True;bombtime = 20
@@ -2380,9 +2389,7 @@ Function KeyboardControllerSettings(showgame:Int)
 		jb = 0
 		bombtime = bombtime - 1
 		If bombtime < 0 Then bombtime = 0
-		For i = 0 To 7
-			jb = jb + JoyDown(i,joyport)
-		Next
+		jb = JoyDown(j_pad_bomb,joyport)
 		If jb > 0 And bombtime = 0 And looper > 15*8 Then done = True
 	Wend
 
@@ -2402,12 +2409,14 @@ Function JoypadControllerSettings(showgame:Int)
 	Local m$,f$
 	Local tim:Int
 	Local lsp:Int = 40
+	Local sel_mode:Int = False  ' True = waiting for button press to assign current row
+	Local assign_sel:Int        ' row being assigned (fixed while sel_mode is True)
 
 	If j_config = 0
-		m$ = "D Pad"
+		m$ = "Joystick"
 		f$ = "4-Buttons"
 	Else
-		f$ = "D Pad"
+		f$ = "Joystick"
 		m$ = "4-Buttons"
 	EndIf
 	bombtime = 20
@@ -2430,31 +2439,55 @@ Function JoypadControllerSettings(showgame:Int)
 
 		If RectsOverlap(xx-8,yy-8,16,16,0,SCREENH/2-lsp,SCREENW,5*4) Then sel = 1
 		If sel = 1 SetColor 255,255,(cnt*8) Mod 255 Else SetColor 0,200,0
-		DrawString("Bomb: Button  ["+(j_pad_bomb+1)+"]",SCREENW/2-280,SCREENH/2-lsp,4)
+		If assign_sel = 1 And sel_mode And cnt Mod 30 < 15
+			DrawString("Bomb: (press a button)",SCREENW/2-280,SCREENH/2-lsp,4)
+		Else
+			DrawString("Bomb: Button  ["+(j_pad_bomb+1)+"]",SCREENW/2-280,SCREENH/2-lsp,4)
+		EndIf
 
 		If RectsOverlap(xx-8,yy-8,16,16,0,SCREENH/2,SCREENW,5*4) Then sel = 2
 		If sel = 2 SetColor 255,255,(cnt*8) Mod 255 Else SetColor 0,200,0
-		DrawString("Option: Button  ["+(j_pad_option+1)+"]",SCREENW/2-280,SCREENH/2,4)
+		If assign_sel = 2 And sel_mode And cnt Mod 30 < 15
+			DrawString("Option: (press a button)",SCREENW/2-280,SCREENH/2,4)
+		Else
+			DrawString("Option: Button  ["+(j_pad_option+1)+"]",SCREENW/2-280,SCREENH/2,4)
+		EndIf
 
 		If RectsOverlap(xx-8,yy-8,16,16,SCREENW/2+64,SCREENH/2+lsp*1,40,30) Then sel = 3
 		If sel = 3 SetColor 255,255,(cnt*8) Mod 255 Else SetColor 0,200,0
 		rect SCREENW/2+64,SCREENH/2+lsp*1,40,30,0
-		DrawString((j_pad_4+1),SCREENW/2+64+8,SCREENH/2+lsp*1+8,3)
+		If assign_sel = 3 And sel_mode And cnt Mod 30 < 15
+			DrawString("?",SCREENW/2+64+8,SCREENH/2+lsp*1+8,3)
+		Else
+			DrawString((j_pad_4+1),SCREENW/2+64+8,SCREENH/2+lsp*1+8,3)
+		EndIf
 
 		If RectsOverlap(xx-8,yy-8,16,16,SCREENW/2,SCREENH/2+lsp*2,40,30) Then sel = 4
 		If sel = 4 SetColor 255,255,(cnt*8) Mod 255 Else SetColor 0,200,0
 		rect SCREENW/2,SCREENH/2+lsp*2,40,30,0
-		DrawString((j_pad_1+1),SCREENW/2+8,SCREENH/2+lsp*2+8,3)
+		If assign_sel = 4 And sel_mode And cnt Mod 30 < 15
+			DrawString("?",SCREENW/2+8,SCREENH/2+lsp*2+8,3)
+		Else
+			DrawString((j_pad_1+1),SCREENW/2+8,SCREENH/2+lsp*2+8,3)
+		EndIf
 
 		If RectsOverlap(xx-8,yy-8,16,16,SCREENW/2+128,SCREENH/2+lsp*2,40,30) Then sel = 5
 		If sel = 5 SetColor 255,255,(cnt*8) Mod 255 Else SetColor 0,200,0
 		rect SCREENW/2+128,SCREENH/2+lsp*2,40,30,0
-		DrawString((j_pad_3+1),SCREENW/2+128+8,SCREENH/2+lsp*2+8,3)
+		If assign_sel = 5 And sel_mode And cnt Mod 30 < 15
+			DrawString("?",SCREENW/2+128+8,SCREENH/2+lsp*2+8,3)
+		Else
+			DrawString((j_pad_3+1),SCREENW/2+128+8,SCREENH/2+lsp*2+8,3)
+		EndIf
 
 		If RectsOverlap(xx-8,yy-8,16,16,SCREENW/2+64,SCREENH/2+lsp*3,40,30) Then sel = 6
 		If sel = 6 SetColor 255,255,(cnt*8) Mod 255 Else SetColor 0,200,0
 		rect SCREENW/2+64,SCREENH/2+lsp*3,40,30,0
-		DrawString((j_pad_2+1),SCREENW/2+64+8,SCREENH/2+lsp*3+8,3)
+		If assign_sel = 6 And sel_mode And cnt Mod 30 < 15
+			DrawString("?",SCREENW/2+64+8,SCREENH/2+lsp*3+8,3)
+		Else
+			DrawString((j_pad_2+1),SCREENW/2+64+8,SCREENH/2+lsp*3+8,3)
+		EndIf
 
 		If RectsOverlap(xx-8,yy-8,16,16,0,SCREENH/2+lsp*4,SCREENW,5*4) Then sel = 7
 		If sel = 7 SetColor 255,255,(cnt*8) Mod 255 Else SetColor 0,200,0
@@ -2480,141 +2513,158 @@ Function JoypadControllerSettings(showgame:Int)
 		EndIf
 		If jdmy <> 0 Then ignorejoy = True
 		If jdmx <> 0 Then ignorexjoy = True
-		If KeyHit(KEY_UP) Or jdmy < 0
-			sel:-1
-			If sel < 0 Then sel = 7
-			Select sel
-				Case 3
-					MoveMouse(SCREENW/2+64-20,SCREENH/2+lsp*1+20)
-				Case 4
-					MoveMouse(SCREENW/2-20,SCREENH/2+lsp*2+20)
-				Case 5
-					MoveMouse(SCREENW/2+128-20,SCREENH/2+lsp*2+20)
-				Case 6
-					MoveMouse(SCREENW/2+64-20,SCREENH/2+lsp*3+20)
-				Case 7
-					MoveMouse(SCREENW/2-280-20,SCREENH/2+lsp*(sel-3)+20)
-				Default
-					MoveMouse(SCREENW/2-280-20,SCREENH/2+lsp*(sel-2)+20)
-			End Select
-		EndIf
-		If KeyHit(KEY_DOWN) Or jdmy > 0
-			sel:+1
-			If sel > 7 Then sel = 0
-			Select sel
-				Case 3
-					MoveMouse(SCREENW/2+64-20,SCREENH/2+lsp*1+20)
-				Case 4
-					MoveMouse(SCREENW/2-20,SCREENH/2+lsp*2+20)
-				Case 5
-					MoveMouse(SCREENW/2+128-20,SCREENH/2+lsp*2+20)
-				Case 6
-					MoveMouse(SCREENW/2+64-20,SCREENH/2+lsp*3+20)
-				Case 7
-					MoveMouse(SCREENW/2-280-20,SCREENH/2+lsp*(sel-3)+20)
-				Default
-					MoveMouse(SCREENW/2-280-20,SCREENH/2+lsp*(sel-2)+20)
-			End Select
-		EndIf
 
 		jb = 0
 		bombtime = bombtime - 1
 		If bombtime < 0 Then bombtime = 0
-		For i = 0 To 15
-			jb = jb + JoyDown(i,joyport)
-		Next
-		If jb > 0 And bombtime = 0 And looper > 15*8 Then done = True;bombtime = 20
-		If KeyHit(KEY_ESCAPE) Then done = True;sel=7;bombtime = 20
-		If KeyHit(KEY_LEFT) Or MouseHit(1) Then jdmx = -1
-		If KeyHit(KEY_RIGHT) Or MouseHit(2) Then jdmx = 1
-		If KeyHit(KEY_ENTER) Then jdmx = 1
-		Select sel
-			Case 0
-				If jdmx <> 0 j_config = 1-j_config
-				done = False
-				If j_config = 0
-					m$ = "D Pad"
-					f$ = "4-Buttons"
+
+		If sel_mode
+			' Waiting for a button press to assign to the current row
+			If KeyHit(KEY_ESCAPE) Then sel_mode = False
+			For i = 0 To 15
+				If JoyDown(i,joyport) And bombtime = 0 Then
+					Select assign_sel
+						Case 1
+							j_pad_bomb = i
+						Case 2
+							j_pad_option = i
+						Case 3
+							j_pad_4 = i
+						Case 4
+							j_pad_1 = i
+						Case 5
+							j_pad_3 = i
+						Case 6
+							j_pad_2 = i
+					End Select
+					sel_mode = False
+					bombtime = 20
+					FlushKeys()
+					Exit
+				EndIf
+			Next
+		Else
+			If Not sel_mode
+				If KeyHit(KEY_UP) Or jdmy < 0
+					sel:-1
+					If sel < 0 Then sel = 7
+					Select sel
+						Case 3
+							MoveMouse(SCREENW/2+64-20,SCREENH/2+lsp*1+20)
+						Case 4
+							MoveMouse(SCREENW/2-20,SCREENH/2+lsp*2+20)
+						Case 5
+							MoveMouse(SCREENW/2+128-20,SCREENH/2+lsp*2+20)
+						Case 6
+							MoveMouse(SCREENW/2+64-20,SCREENH/2+lsp*3+20)
+						Case 7
+							MoveMouse(SCREENW/2-280-20,SCREENH/2+lsp*(sel-3)+20)
+						Default
+							MoveMouse(SCREENW/2-280-20,SCREENH/2+lsp*(sel-2)+20)
+					End Select
+				EndIf
+				If KeyHit(KEY_DOWN) Or jdmy > 0
+					sel:+1
+					If sel > 7 Then sel = 0
+					Select sel
+						Case 3
+							MoveMouse(SCREENW/2+64-20,SCREENH/2+lsp*1+20)
+						Case 4
+							MoveMouse(SCREENW/2-20,SCREENH/2+lsp*2+20)
+						Case 5
+							MoveMouse(SCREENW/2+128-20,SCREENH/2+lsp*2+20)
+						Case 6
+							MoveMouse(SCREENW/2+64-20,SCREENH/2+lsp*3+20)
+						Case 7
+							MoveMouse(SCREENW/2-280-20,SCREENH/2+lsp*(sel-3)+20)
+						Default
+							MoveMouse(SCREENW/2-280-20,SCREENH/2+lsp*(sel-2)+20)
+					End Select
+				EndIf
+			EndIf
+			If KeyHit(KEY_ESCAPE) And bombtime = 0 Then done = True;sel=7;bombtime = 20
+			If KeyHit(KEY_LEFT) Or MouseHit(1) Then jdmx = -1
+			If KeyHit(KEY_RIGHT) Or MouseHit(2) Then jdmx = 1
+			If KeyHit(KEY_ENTER) Or KeyHit(k_bomb)
+				If sel >= 1 And sel <= 6
+					assign_sel = sel
+					sel_mode = True
+					bombtime = 20
+					FlushKeys()
 				Else
-					f$ = "D Pad"
-					m$ = "4-Buttons"
+					jdmx = 1
 				EndIf
-			Case 1
-				If jdmx < 0
-					j_pad_bomb:-1
-					If j_pad_bomb < 0 Then j_pad_bomb = 0
-				Else If jdmx > 0
-					j_pad_bomb:+1
-					If j_pad_bomb > 15 Then j_pad_bomb = 15
-				EndIf
-				For i = 0 To 15
-					If JoyDown(i,joyport) Then j_pad_bomb = i
-				Next
-				done = False
-			Case 2
-				If jdmx < 0
-					j_pad_option:-1
-					If j_pad_option < 0 Then j_pad_option = 0
-				Else If jdmx > 0
-					j_pad_option:+1
-					If j_pad_option > 15 Then j_pad_option = 15
-				EndIf
-				For i = 0 To 15
-					If JoyDown(i,joyport) Then j_pad_option = i
-				Next
-				done = False
-			Case 3
-				If jdmx < 0
-					j_pad_4:-1
-					If j_pad_4 < 0 Then j_pad_4 = 0
-				Else If jdmx > 0
-					j_pad_4:+1
-					If j_pad_4 > 15 Then j_pad_4 = 15
-				EndIf
-				For i = 0 To 15
-					If JoyDown(i,joyport) Then j_pad_4 = i
-				Next
-				done = False
-			Case 4
-				If jdmx < 0
-					j_pad_1:-1
-					If j_pad_1 < 0 Then j_pad_1 = 0
-				Else If jdmx > 0
-					j_pad_1:+1
-					If j_pad_1 > 15 Then j_pad_1 = 15
-				EndIf
-				For i = 0 To 15
-					If JoyDown(i,joyport) Then j_pad_1 = i
-				Next
-				done = False
-			Case 5
-				If jdmx < 0
-					j_pad_3:-1
-					If j_pad_3 < 0 Then j_pad_3 = 0
-				Else If jdmx > 0
-					j_pad_3:+1
-					If j_pad_3 > 15 Then j_pad_3 = 15
-				EndIf
-				For i = 0 To 15
-					If JoyDown(i,joyport) Then j_pad_3 = i
-				Next
-				done = False
-			Case 6
-				If jdmx < 0
-					j_pad_2:-1
-					If j_pad_2 < 0 Then j_pad_2 = 0
-				Else If jdmx > 0
-					j_pad_2:+1
-					If j_pad_2 > 15 Then j_pad_2 = 15
-				EndIf
-				For i = 0 To 15
-					If JoyDown(i,joyport) Then j_pad_2 = i
-				Next
-				done = False
-			Case 7
-				If jdmx <> 0 Then done = True
-				'exit
-		End Select
+			EndIf
+			Select sel
+				Case 0
+					If jdmx <> 0 j_config = 1-j_config
+					done = False
+					If j_config = 0
+						m$ = "Joystick"
+						f$ = "4-Buttons"
+					Else
+						f$ = "Joystick"
+						m$ = "4-Buttons"
+					EndIf
+				Case 1
+					If jdmx < 0
+						j_pad_bomb:-1
+						If j_pad_bomb < 0 Then j_pad_bomb = 0
+					Else If jdmx > 0
+						j_pad_bomb:+1
+						If j_pad_bomb > 15 Then j_pad_bomb = 15
+					EndIf
+					done = False
+				Case 2
+					If jdmx < 0
+						j_pad_option:-1
+						If j_pad_option < 0 Then j_pad_option = 0
+					Else If jdmx > 0
+						j_pad_option:+1
+						If j_pad_option > 15 Then j_pad_option = 15
+					EndIf
+					done = False
+				Case 3
+					If jdmx < 0
+						j_pad_4:-1
+						If j_pad_4 < 0 Then j_pad_4 = 0
+					Else If jdmx > 0
+						j_pad_4:+1
+						If j_pad_4 > 15 Then j_pad_4 = 15
+					EndIf
+					done = False
+				Case 4
+					If jdmx < 0
+						j_pad_1:-1
+						If j_pad_1 < 0 Then j_pad_1 = 0
+					Else If jdmx > 0
+						j_pad_1:+1
+						If j_pad_1 > 15 Then j_pad_1 = 15
+					EndIf
+					done = False
+				Case 5
+					If jdmx < 0
+						j_pad_3:-1
+						If j_pad_3 < 0 Then j_pad_3 = 0
+					Else If jdmx > 0
+						j_pad_3:+1
+						If j_pad_3 > 15 Then j_pad_3 = 15
+					EndIf
+					done = False
+				Case 6
+					If jdmx < 0
+						j_pad_2:-1
+						If j_pad_2 < 0 Then j_pad_2 = 0
+					Else If jdmx > 0
+						j_pad_2:+1
+						If j_pad_2 > 15 Then j_pad_2 = 15
+					EndIf
+					done = False
+				Case 7
+					If jdmx <> 0 Then done = True
+					'exit
+			End Select
+		EndIf
 		looper :+8
 	Wend
 
@@ -3142,7 +3192,7 @@ Function CheckInput:Int(port:Int)
 		LoadConfig()
 	EndIf
 
-	If KeyHit(KEY_E) ' E For Exit
+	If KeyHit(KEY_E) Or KeyHit(KEY_ESCAPE) ' E or Escape to exit
 		Return True
 	EndIf
 
@@ -3347,16 +3397,8 @@ Function GetJoyByAxis#( port:Int, axis:Int, invert:Int=1, sc#, db# )
 			joy=JoyHat(port)/sc*invert - db
 		Case 10
 			joy=JoyWheel(port)/sc*invert - db
-'		Case 11
-'			joy=JoyWhat(port,12)/sc*invert - db
-'		Case 12
-'			joy=JoyWhat(port,13)/sc*invert - db
-'		Case 13
-'			joy=JoyWhat(port,14)/sc*invert - db
-'		Case 14
-'			joy=JoyWhat(port,15)/sc*invert - db
 	End Select
-	Return joy  '/sc * invert)
+	Return joy
 End Function
 
 
@@ -3389,6 +3431,99 @@ Function SetController()
 End Function
 
 
+' Apply SDL GameController mapping as default axis indices for ports not configured
+' by Config.txt. Call this AFTER SetUp() (SDL must be initialized). Skips any port
+' where axis values were already loaded from Config.txt (joyAxisConfigured[port]=True).
+' Follows up with SetController() to propagate values into axis globals.
+Function ApplyGCAxisDefaults()
+	SDL_InitSubSystem(SDL_INIT_GAMECONTROLLER)
+	Local i:Int
+	For i = 0 Until SDL_NumJoysticks()
+		If SDL_IsGameController(i)
+			Local gcHandle:Byte Ptr = SDL_GameControllerOpen(i)
+			If gcHandle
+				Local mapping:String = String.FromCString(SDL_GameControllerMapping(gcHandle))
+				SDL_GameControllerClose(gcHandle)
+				Local lx:Int = GCAxisFromMapping(mapping, "leftx")
+				Local ly:Int = GCAxisFromMapping(mapping, "lefty")
+				Local rx:Int = GCAxisFromMapping(mapping, "rightx")
+				Local ry:Int = GCAxisFromMapping(mapping, "righty")
+				Local btn_back:Int = GCBtnFromMapping(mapping, "back")
+				Local btn_rs:Int   = GCBtnFromMapping(mapping, "rightshoulder")
+				Local btn_x:Int    = GCBtnFromMapping(mapping, "x")
+				Local btn_a:Int    = GCBtnFromMapping(mapping, "a")
+				Local btn_b:Int    = GCBtnFromMapping(mapping, "b")
+				Local btn_y:Int    = GCBtnFromMapping(mapping, "y")
+				If Not joyBombConfigured   And btn_rs   >= 0 Then j_pad_bomb   = btn_rs
+				If Not joyOptionConfigured And btn_back >= 0 Then j_pad_option = btn_back
+				If Not joyPad1Configured   And btn_x    >= 0 Then j_pad_1      = btn_x
+				If Not joyPad2Configured   And btn_a    >= 0 Then j_pad_2      = btn_a
+				If Not joyPad3Configured   And btn_b    >= 0 Then j_pad_3      = btn_b
+				If Not joyPad4Configured   And btn_y    >= 0 Then j_pad_4      = btn_y
+				Local port:Int
+				For port = 0 To 3
+					If Not joyAxisConfigured[port]
+						If lx >= 0 Then j[port].x1id = lx + 1
+						If ly >= 0 Then j[port].y1id = ly + 1
+						If rx >= 0 Then j[port].x2id = rx + 1
+						If ry >= 0 Then j[port].y2id = ry + 1
+						If btn_rs   >= 0 Then j[port].bombbutton   = btn_rs
+						If btn_back >= 0 Then j[port].optionbutton = btn_back
+						If j[port].x1dz = 0 Then j[port].x1dz = 0.1
+						If j[port].y1dz = 0 Then j[port].y1dz = 0.1
+						If j[port].x2dz = 0 Then j[port].x2dz = 0.1
+						If j[port].y2dz = 0 Then j[port].y2dz = 0.1
+					EndIf
+				Next
+				Exit
+			EndIf
+		EndIf
+	Next
+	SDL_QuitSubSystem(SDL_INIT_GAMECONTROLLER)
+	SetController()
+End Function
+
+
+' Parse an SDL GameController mapping string (e.g. from SDL_GameControllerMapping) to
+' find the raw joystick axis index for a named semantic axis like "rightx".
+' Returns a 0-based axis index, or -1 if the axis is not found in the mapping.
+Function GCAxisFromMapping:Int(mapping:String, axisName:String)
+	Local search:String = axisName + ":a"
+	Local pos:Int = mapping.Find(search)
+	If pos < 0
+		search = "+" + axisName + ":+a"
+		pos = mapping.Find(search)
+		If pos >= 0 Then pos :+ 1  ' skip leading '+'
+	EndIf
+	If pos < 0 Then Return -1
+	pos :+ axisName.Length + 2   ' skip "name:a" (or "name:+" for signed format)
+	If pos < mapping.Length And mapping[pos] = Asc("a") Then pos :+ 1  ' signed: "+name:+a0" leaves us at 'a'
+	Local numStr:String = ""
+	While pos < mapping.Length And mapping[pos] >= 48 And mapping[pos] <= 57
+		numStr :+ Chr(mapping[pos])
+		pos :+ 1
+	Wend
+	If numStr = "" Then Return -1
+	Return Int(numStr)
+End Function
+
+
+' Parse an SDL GameController mapping string to find the raw joystick button
+' index for a named semantic button like "back" or "rightshoulder".
+' Returns a 0-based button index, or -1 if not found.
+Function GCBtnFromMapping:Int(mapping:String, btnName:String)
+	Local search:String = btnName + ":b"
+	Local pos:Int = mapping.Find(search)
+	If pos < 0 Then Return -1
+	pos :+ btnName.Length + 2
+	Local numStr:String = ""
+	While pos < mapping.Length And mapping[pos] >= 48 And mapping[pos] <= 57
+		numStr :+ Chr(mapping[pos])
+		pos :+ 1
+	Wend
+	If numStr = "" Then Return -1
+	Return Int(numStr)
+End Function
 
 
 

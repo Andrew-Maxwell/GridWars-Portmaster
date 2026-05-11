@@ -21,23 +21,23 @@ Dual Analog
 [Autofire]
 1
 [Key Bomb]
-32
+82
 [Key Move Left]
-65
-[Key Move Right]
-68
-[Key Move Up]
-87
-[Key Move Down]
-83
-[Key Fire Left]
 37
-[Key Fire Right]
+[Key Move Right]
 39
-[Key Fire Up]
+[Key Move Up]
 38
-[Key Fire Down]
+[Key Move Down]
 40
+[Key Fire Left]
+88
+[Key Fire Right]
+66
+[Key Fire Up]
+89
+[Key Fire Down]
+65
 [SFX Volume]
 56
 [Music Volume]
