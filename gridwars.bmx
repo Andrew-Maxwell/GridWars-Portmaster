@@ -5815,6 +5815,19 @@ Function Drawall()
 	Local pow:pu
 	Local t:Int
 
+	Local savedSW:Int = SCREENW
+	Local savedSH:Int = SCREENH
+	Local savedGxoff:Int = gxoff
+	Local savedGyoff:Int = gyoff
+	If virtualCanvas
+		SetRenderImage virtualCanvas
+		Cls
+		SCREENW = PLAYFIELDW
+		SCREENH = PLAYFIELDH
+		gxoff = 0
+		gyoff = 0
+	EndIf
+
 	gridpoint.DrawGrid(g_style)
 
 	SetOrigin 0,0
@@ -5823,7 +5836,11 @@ Function Drawall()
 
 	score.DrawPoints()
 
-	SetViewport 0,0,SCREENW,SCREENH
+	If virtualCanvas
+		SetRenderImageViewport(virtualCanvas, 0, 0, PLAYFIELDW, PLAYFIELDH)
+	Else
+		SetViewport 0,0,SCREENW,SCREENH
+	EndIf
 	SetScale 1,1
 	SetAlpha 1
 
@@ -5955,6 +5972,22 @@ Function Drawall()
 	DrawLine -gxoff,PLAYFIELDH-1-gyoff,PLAYFIELDW-1-gxoff,PLAYFIELDH-1-gyoff
 	DrawLine PLAYFIELDW-1-gxoff,PLAYFIELDH-1-gyoff,PLAYFIELDW-1-gxoff,-gyoff
 
+	If virtualCanvas
+		SCREENW = savedSW
+		SCREENH = savedSH
+		gxoff = savedGxoff
+		gyoff = savedGyoff
+		SetRenderImage Null
+		Cls
+		SetOrigin 0, 0
+		SetScale fitScale, fitScale
+		SetRotation 0
+		SetColor 255, 255, 255
+		SetAlpha 1
+		SetBlend ALPHABLEND
+		DrawImage virtualCanvas, blitOffX, blitOffY
+		SetScale 1, 1
+	EndIf
 
 End Function
 

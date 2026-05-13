@@ -48,6 +48,11 @@ Global gyoff:Int
 
 Global scroll:Int = False
 
+Global virtualCanvas:TRenderImage = Null
+Global fitScale# = 1.0
+Global blitOffX:Int = 0
+Global blitOffY:Int = 0
+
 Global screensize:Int = 0
 Global screensizew:Int = 1024
 Global screensizeh:Int = 768
@@ -226,6 +231,11 @@ Function SetUp:Int()
 
 	Local ret:Int = True
 
+	If virtualCanvas
+		DestroyRenderImage(virtualCanvas)
+		virtualCanvas = Null
+	EndIf
+
 	SetDimensions()
 
 	If windowed
@@ -275,12 +285,26 @@ Function SetUp:Int()
 		gridpoint.ResetAll()
 
 		LoadImages()
-		If PLAYFIELDW > SCREENW Or PLAYFIELDH > SCREENH Then scroll = True
-'		If PLAYFIELDW <= SCREENW And PLAYFIELDH <= SCREENH Then scroll = False
 		gxoff = 0
 		gyoff = 0
 
 		capturedimg:TImage = CreateImage(SCREENW,SCREENH)
+
+		If (PLAYFIELDW > SCREENW Or PLAYFIELDH > SCREENH) And Not scroll
+			Local scaleX:Float = Float(SCREENW) / Float(PLAYFIELDW)
+			Local scaleY:Float = Float(SCREENH) / Float(PLAYFIELDH)
+			fitScale = Min(scaleX, scaleY)
+			Local bw:Int = Int(Float(PLAYFIELDW) * fitScale)
+			Local bh:Int = Int(Float(PLAYFIELDH) * fitScale)
+			blitOffX = (SCREENW - bw) / 2
+			blitOffY = (SCREENH - bh) / 2
+			virtualCanvas = CreateRenderImage(PLAYFIELDW, PLAYFIELDH, True)
+			If Not virtualCanvas
+				scroll = True
+			EndIf
+		ElseIf PLAYFIELDW > SCREENW Or PLAYFIELDH > SCREENH
+			scroll = True
+		EndIf
 		SetLineWidth 2
 ?not opengles
 		glEnable GL_LINE_SMOOTH; glHint GL_LINE_SMOOTH, GL_NICEST
