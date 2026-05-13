@@ -2,6 +2,9 @@ Strict
 
 Import BRL.FreeAudioAudio
 Import BRL.WavLoader
+?Linux
+Import BRL.OGGLoader
+?
 
 ?Win32
 Import "bass.bmx"
@@ -309,7 +312,25 @@ EndRem
 ?
 
 ?Linux
+	If musicchannel <> Null Then Return
 
+	Local f$ = ""
+
+	Select song
+		Case 0
+			f$ = "music/Theme0.ogg"
+		Case 1
+			f$ = "music/Theme1.ogg"
+		Case 2
+			f$ = "music/Theme2.ogg"
+	End Select
+
+	Local snd:TSound = LoadSound(f$, True)
+	If snd
+		musicchannel = CueSound(snd)
+		SetChannelVolume(musicchannel, musicvol)
+		ResumeChannel(musicchannel)
+	EndIf
 ?
 
 
@@ -334,7 +355,10 @@ End Rem
 	EndIf
 ?
 ?Linux
-
+	If musicchannel <> Null
+		StopChannel(musicchannel)
+		musicchannel = Null
+	EndIf
 ?
 
 End Function
@@ -355,7 +379,9 @@ End Rem
 	EndIf
 ?
 ?Linux
-
+	If musicchannel <> Null
+		SetChannelVolume(musicchannel, musicvol)
+	EndIf
 ?
 
 End Function
