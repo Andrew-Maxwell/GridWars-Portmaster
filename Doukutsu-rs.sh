@@ -52,6 +52,15 @@ fi
 GRIDWARS_CONF="$HOME/.config/gridwars/Config.txt"
 mkdir -p "$HOME/.config/gridwars"
 
+# Compute playfield size: match display if >=720p, otherwise scale up to 768 tall
+if [ "$DISPLAY_HEIGHT" -gt 700 ]; then
+    PF_WIDTH=$DISPLAY_WIDTH
+    PF_HEIGHT=$DISPLAY_HEIGHT
+else
+    PF_HEIGHT=768
+    PF_WIDTH=$(( 768 * DISPLAY_WIDTH / DISPLAY_HEIGHT ))
+fi
+
 # Set first occurrence of key; appends if missing
 _gw_set_key() {
     local file="$1" key="$2" value="$3"
@@ -80,6 +89,10 @@ ${DISPLAY_WIDTH}
 ${DISPLAY_HEIGHT}
 [Windowed]
 False
+[Playfield Width]
+${PF_WIDTH}
+[Playfield Height]
+${PF_HEIGHT}
 [Key Bomb]
 82
 [Key Move Left]
@@ -136,9 +149,11 @@ False
 0.25
 CONF
 else
-    # Existing config: only force screen resolution to match the display
+    # Existing config: force screen and playfield resolution to match the display
     _gw_set_key "$GRIDWARS_CONF" "Screen Width"  "$DISPLAY_WIDTH"
     _gw_set_key "$GRIDWARS_CONF" "Screen Height" "$DISPLAY_HEIGHT"
+    _gw_set_key "$GRIDWARS_CONF" "Playfield Width"  "$PF_WIDTH"
+    _gw_set_key "$GRIDWARS_CONF" "Playfield Height" "$PF_HEIGHT"
 fi
 
 $GPTOKEYB "$BINARY" -c "./$BINARY.gptk" &
