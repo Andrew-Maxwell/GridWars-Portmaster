@@ -149,11 +149,9 @@ ${PF_HEIGHT}
 0.25
 CONF
 else
-    # Existing config: force screen and playfield resolution to match the display
+    # Existing config: force screen resolution to match the display
     _gw_set_key "$GRIDWARS_CONF" "Screen Width"  "$DISPLAY_WIDTH"
     _gw_set_key "$GRIDWARS_CONF" "Screen Height" "$DISPLAY_HEIGHT"
-    _gw_set_key "$GRIDWARS_CONF" "Playfield Width"  "$PF_WIDTH"
-    _gw_set_key "$GRIDWARS_CONF" "Playfield Height" "$PF_HEIGHT"
 fi
 
 $GPTOKEYB "$BINARY" -c "./$BINARY.gptk" &
