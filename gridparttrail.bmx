@@ -53,6 +53,21 @@ Global fitScale# = 1.0
 Global blitOffX:Int = 0
 Global blitOffY:Int = 0
 
+Function BlitVirtualCanvas()
+	If virtualCanvas
+		SetRenderImage Null
+		Cls
+		SetOrigin 0, 0
+		SetScale fitScale, fitScale
+		SetRotation 0
+		SetColor 255, 255, 255
+		SetAlpha 1
+		SetBlend ALPHABLEND
+		DrawImage virtualCanvas, blitOffX, blitOffY
+		SetScale 1, 1
+	EndIf
+End Function
+
 Global screensize:Int = 0
 Global screensizew:Int = 1024
 Global screensizeh:Int = 768

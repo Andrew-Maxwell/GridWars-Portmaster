@@ -3736,14 +3736,28 @@ Function DoGameOver:Int()
 		UpdateAll()
 		Cls
 		tim = MilliSecs()
-		drawall()
-'		If KeyDown(KEY_TAB) Then End
-'		If Not KeyDown(KEY_F8)
+		If virtualCanvas
+			Local svSW:Int = SCREENW, svSH:Int = SCREENH
+			Local svGx:Int = gxoff, svGy:Int = gyoff
+			drawall(False)
+			SetColor 0,55+Abs(Sin(looper/2))*200,0
+			DrawString("GAME OVER",..
+			  PLAYFIELDW/2-Abs(Sin(looper/2))*19*5*9*.5,..
+			  PLAYFIELDH/2-Abs(Sin(looper/2))*100,..
+			  Abs(Sin(looper/2))*20)
+			SCREENW = svSW
+			SCREENH = svSH
+			gxoff = svGx
+			gyoff = svGy
+			BlitVirtualCanvas()
+		Else
+			drawall()
 			SetColor 0,55+Abs(Sin(looper/2))*200,0
 			DrawString("GAME OVER",..
 			  SCREENW/2-Abs(Sin(looper/2))*19*5*9*.5,..
 			  SCREENH/2-Abs(Sin(looper/2))*100,..
 			  Abs(Sin(looper/2))*20)
+		EndIf
 '		EndIf
 		Flip 1
 		tim = MilliSecs() - tim
@@ -4369,14 +4383,28 @@ Function GetReady:Int()
 
 		gridpoint.UpdateGrid()
 		UpdateAll()
-		drawall()
-'		If KeyDown(KEY_TAB) Then End
-'		If Not KeyDown(KEY_F8)
+		If virtualCanvas
+			Local svSW:Int = SCREENW, svSH:Int = SCREENH
+			Local svGx:Int = gxoff, svGy:Int = gyoff
+			drawall(False)
+			SetColor 0,55+Abs(Sin(count))*200,0
+			DrawString("GET READY",..
+			  PLAYFIELDW/2-Abs(Sin(count))*19*5*9*.5,..
+			  PLAYFIELDH/2-Abs(Sin(count))*100,..
+			  Abs(Sin(count))*20)
+			SCREENW = svSW
+			SCREENH = svSH
+			gxoff = svGx
+			gyoff = svGy
+			BlitVirtualCanvas()
+		Else
+			drawall()
 			SetColor 0,55+Abs(Sin(count))*200,0
 			DrawString("GET READY",..
 			  SCREENW/2-Abs(Sin(count))*19*5*9*.5,..
 			  SCREENH/2-Abs(Sin(count))*100,..
 			  Abs(Sin(count))*20)
+		EndIf
 
 '			DrawString("GET READY", SCREENW/2+60-Abs(Sin(count))*SCREENW/2,SCREENH/2-Abs(Sin(count))*100,Abs(Sin(count))*20)
 '		EndIf
@@ -4399,14 +4427,28 @@ Function GetReady:Int()
 
 		gridpoint.UpdateGrid()
 		UpdateAll()
-		drawall()
-'		If KeyDown(KEY_TAB) Then End
-'		If Not KeyDown(KEY_F8)
+		If virtualCanvas
+			Local svSW:Int = SCREENW, svSH:Int = SCREENH
+			Local svGx:Int = gxoff, svGy:Int = gyoff
+			drawall(False)
+			SetColor COL_PLAYER_R,COL_PLAYER_G,COL_PLAYER_B
+			If count > 10 Then DrawPlayer(px,py,pr)
+			DrawCircle(PLAYFIELDW/2,PLAYFIELDH/2,300-count*6)
+			DrawCircle(PLAYFIELDW/2,PLAYFIELDH/2,300-count*8)
+			DrawCircle(PLAYFIELDW/2,PLAYFIELDH/2,300-count*12)
+			SCREENW = svSW
+			SCREENH = svSH
+			gxoff = svGx
+			gyoff = svGy
+			BlitVirtualCanvas()
+		Else
+			drawall()
 			SetColor COL_PLAYER_R,COL_PLAYER_G,COL_PLAYER_B
 			If count > 10 Then DrawPlayer(px,py,pr)
 			DrawCircle(SCREENW/2,SCREENH/2,300-count*6)
 			DrawCircle(SCREENW/2,SCREENH/2,300-count*8)
 			DrawCircle(SCREENW/2,SCREENH/2,300-count*12)
+		EndIf
 '		EndIf
 		Flip
 		tim = MilliSecs() - tim
@@ -5796,7 +5838,7 @@ Function DrawMessage()
 End Function
 
 
-Function Drawall()
+Function Drawall(blit:Int = True)
 'If KeyDown(KEY_TAB) Then End
 'If KeyDown(KEY_F8) Then Return
 
@@ -5972,21 +6014,12 @@ Function Drawall()
 	DrawLine -gxoff,PLAYFIELDH-1-gyoff,PLAYFIELDW-1-gxoff,PLAYFIELDH-1-gyoff
 	DrawLine PLAYFIELDW-1-gxoff,PLAYFIELDH-1-gyoff,PLAYFIELDW-1-gxoff,-gyoff
 
-	If virtualCanvas
+	If virtualCanvas And blit
 		SCREENW = savedSW
 		SCREENH = savedSH
 		gxoff = savedGxoff
 		gyoff = savedGyoff
-		SetRenderImage Null
-		Cls
-		SetOrigin 0, 0
-		SetScale fitScale, fitScale
-		SetRotation 0
-		SetColor 255, 255, 255
-		SetAlpha 1
-		SetBlend ALPHABLEND
-		DrawImage virtualCanvas, blitOffX, blitOffY
-		SetScale 1, 1
+		BlitVirtualCanvas()
 	EndIf
 
 End Function

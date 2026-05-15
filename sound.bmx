@@ -18,6 +18,7 @@ Global musicchannel:TChannel = Null
 Global musicchannel:Int = 0
 ?Linux
 Global musicchannel:TChannel = Null
+Global music_snd:TSound[3]
 ?
 
 
@@ -206,6 +207,12 @@ Function LoadSounds()
 
 	shieldwarningsnd:TSound = LoadSound(folder$+"shieldwarning.wav")		'
 
+?Linux
+	music_snd[0] = LoadSound("music/Theme0.ogg", True)
+	music_snd[1] = LoadSound("music/Theme1.ogg", True)
+	music_snd[2] = LoadSound("music/Theme2.ogg", True)
+?
+
 End Function
 
 
@@ -313,21 +320,8 @@ EndRem
 
 ?Linux
 	If musicchannel <> Null Then Return
-
-	Local f$ = ""
-
-	Select song
-		Case 0
-			f$ = "music/Theme0.ogg"
-		Case 1
-			f$ = "music/Theme1.ogg"
-		Case 2
-			f$ = "music/Theme2.ogg"
-	End Select
-
-	Local snd:TSound = LoadSound(f$, True)
-	If snd
-		musicchannel = CueSound(snd)
+	If song >= 0 And song <= 2 And music_snd[song]
+		musicchannel = CueSound(music_snd[song])
 		SetChannelVolume(musicchannel, musicvol)
 		ResumeChannel(musicchannel)
 	EndIf
