@@ -1,13 +1,13 @@
 {
   "version": 4,
-  "name": "gridwars",
+  "name": "gridwars.zip",
   "items": [
-    "gridwars.sh",
+    "GridWars.sh",
     "gridwars"
   ],
   "items_opt": [],
   "attr": {
-    "title": "gridwars",
+    "title": "GridWars",
     "porter": [
       "Infamous & Notorious Dr. Cliche"
     ],

@@ -1,5 +1,5 @@
 #!/bin/bash
-# PORTMASTER: doukutsu-rs.zip, Doukutsu-rs.sh
+# PORTMASTER: gridwars.zip, GridWars.sh
 
 XDG_DATA_HOME=${XDG_DATA_HOME:-$HOME/.local/share}
 
@@ -29,7 +29,8 @@ cd $GAMEDIR
 
 > "$GAMEDIR/log.txt" && exec > >(tee "$GAMEDIR/log.txt") 2>&1
 
-bind_directories ~/.local/share/doukutsu-rs $GAMEDIR/conf
+mkdir -p "$HOME/.config/gridwars"
+bind_directories ~/.config/gridwars $GAMEDIR/conf
 
 export SDL_GAMECONTROLLERCONFIG="$sdl_controllerconfig"
 
@@ -37,11 +38,6 @@ if [ -f "${controlfolder}/libgl_${CFW_NAME}.txt" ]; then
   source "${controlfolder}/libgl_${CFW_NAME}.txt"
 else
   source "${controlfolder}/libgl_default.txt"
-fi
-
-if [ "${CFW_NAME}" != ROCKNIX ] && [ "$LIBGL_FB" != "" ]; then
-  export SDL_VIDEO_GL_DRIVER="$GAMEDIR/gl4es.aarch64/libGL.so.1"
-  export SDL_VIDEO_EGL_DRIVER="$GAMEDIR/gl4es.aarch64/libEGL.so.1"
 fi
 
 # Get display resolution (set by ES env on ROCKNIX; device_info.txt as fallback)
@@ -113,6 +109,26 @@ ${PF_HEIGHT}
 65
 [Control Type]
 Keyboard
+[Scroll]
+0
+[Inertia]
+50
+[Gfx Set]
+3
+[Show Stars]
+400
+[Particle Style]
+0
+[Grid Style]
+4
+[Grid Red]
+0
+[Grid Green]
+0
+[Grid Blue]
+255
+[Grid Opacity]
+100
 [Particle Count]
 512
 [Particle Life]
@@ -178,7 +194,7 @@ fi
 
 $GPTOKEYB "$BINARY" -c "./$BINARY.gptk" &
 
-pm_platform_helper gdb -batch -ex run -ex bt --args "$GAMEDIR/$BINARY"
+pm_platform_helper "$GAMEDIR/$BINARY"
 
 ./$BINARY
 
