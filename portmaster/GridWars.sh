@@ -120,7 +120,7 @@ Keyboard
 [Particle Style]
 0
 [Grid Style]
-4
+0
 [Grid Red]
 0
 [Grid Green]

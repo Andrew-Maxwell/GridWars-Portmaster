@@ -63,7 +63,7 @@ Recommended Settings:
 | GFX | High | High
 | Stars	| 400 | 400
 | Particles | Lines | Lines
-| Grid | Pattern 4, Blue | Pattern 4, Blue
+| Grid | Pattern 4, Blue | Half are broken on my device but I'm fond of #12
 | Control | Dual Analog | Whatever works :)
 
 
