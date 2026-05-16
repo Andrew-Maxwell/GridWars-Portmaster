@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<gameList>
+  <game>
+    <path>./GridWars.sh</path>
+    <name>GridWars</name>
+    <desc>A twin-stick shooter set in a frantic neon ecosystem. Black holes are your apex predators and cash cows. Feed them enemies while keeping them from bursting for as long as possible, before harvesting them for a huge payout.</desc>
+    <releasedate>20060216T000000</releasedate>
+    <developer>Mark Incitti</developer>
+    <publisher>N/A</publisher>
+    <genre>Action, Arcade</genre>
+    <image>./gridwars/screenshot.jpg</image>
+  </game>
+</gameList>

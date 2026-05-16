@@ -111,10 +111,28 @@ ${PF_HEIGHT}
 89
 [Key Fire Down]
 65
+[Control Type]
+Keyboard
+[Particle Count]
+512
+[Particle Life]
+24
+[Particle Gravity]
+0
+[Particle Decay]
+0.900000000
 [Used Port]
 0
 [Joy Port]
 0
+[Joy Move X]
+1
+[Joy Move Y]
+2
+[Joy Fire X]
+3
+[Joy Fire Y]
+4
 [Joy Move X Inverted]
 1
 [Joy Move Y Inverted]
@@ -147,6 +165,10 @@ ${PF_HEIGHT}
 0.25
 [Joy Fire Y Dead Zone]
 0.25
+[Joy Option]
+4
+[Joy Bomb]
+5
 CONF
 else
     # Existing config: force screen resolution to match the display

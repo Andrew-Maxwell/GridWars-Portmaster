@@ -1,0 +1,33 @@
+{
+  "version": 4,
+  "name": "gridwars",
+  "items": [
+    "gridwars.sh",
+    "gridwars"
+  ],
+  "items_opt": [],
+  "attr": {
+    "title": "gridwars",
+    "porter": [
+      "Infamous & Notorious Dr. Cliche"
+    ],
+    "desc": "A twin-stick shooter set in a frantic neon ecosystem. Black holes are your apex predators and cash cows. Feed them enemies while keeping them from bursting for as long as possible, before harvesting them for a huge payout.",
+    "desc_md": null,
+    "inst": "Briefly, left trigger/start = menu/ESC, right trigger = bomb/menu select.\nCan use either joysticks or D-pad + ABXY; switch and remap buttons in menus.\nmin spec (rk3326/320x480) works, sort of--menu is partially cut off and it runs a little slow.",
+    "inst_md": null,
+    "genres": [
+      "action"
+    ],
+    "image": null,
+    "rtr": true,
+    "exp": false,
+    "runtime": [],
+    "store": [],
+    "availability": "full",
+    "reqs": [],
+    "arch": [
+      "aarch64"
+    ],
+    "min_glibc": ""
+  }
+}
