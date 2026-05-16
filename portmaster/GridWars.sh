@@ -100,15 +100,23 @@ ${PF_HEIGHT}
 [Key Move Down]
 40
 [Key Fire Left]
-88
-[Key Fire Right]
-66
-[Key Fire Up]
 89
-[Key Fire Down]
+[Key Fire Right]
 65
+[Key Fire Up]
+88
+[Key Fire Down]
+66
 [Control Type]
 Keyboard
+[Joypad Left]
+3
+[Joypad Up]
+0
+[Joypad Right]
+1
+[Joypad Down]
+2
 [Scroll]
 0
 [Inertia]
@@ -130,7 +138,7 @@ Keyboard
 [Grid Opacity]
 100
 [Particle Count]
-512
+256
 [Particle Life]
 24
 [Particle Gravity]

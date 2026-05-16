@@ -3,7 +3,7 @@
   <game>
     <path>./GridWars.sh</path>
     <name>GridWars</name>
-    <desc>A twin-stick shooter set in a frantic neon ecosystem. Black holes are your apex predators and cash cows. Feed them enemies while keeping them from bursting for as long as possible, before harvesting them for a huge payout.</desc>
+    <desc>A twin-stick shooter inspired by Geometry Wars, with an additional strategic element. Black holes are the apex predator and cash cow. The more mobs you let them eat, the more they're worth when you destroy them--but if they get too big, they burst. Manage them carefully to rack up huge bonuses.</desc>
     <releasedate>20060216T000000</releasedate>
     <developer>Mark Incitti</developer>
     <publisher>N/A</publisher>
