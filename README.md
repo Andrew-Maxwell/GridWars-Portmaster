@@ -1,26 +1,22 @@
-# GridWars — Odroid Go Ultra (ROCKNIX) Porting Notes
+# GridWars — Odroid Go Ultra (ROCKNIX) Claude-assisted Porting Notes
+
+
 
 ## Status (as of 2026-05-10)
 
-- **Working**: Game launches, renders, audio works, movement and twin-stick fire both correct, dead zones applied. Stable for 5+ minute sessions.
+Ready to submit to Portmaster for testing. On rk3326 devices, game runs slow, significantly affecting balance but still "playable." Menus are partially cut off, but technically "functional", at 480x320.
 
-### Remaining TODOs
+## Bootstrapping bmx-ng
 
-1. **Axis wizard exit with gamepad** — No way to exit the axis wizard screen using only a gamepad. gptokeyb (TODO 2) will fix this by mapping a button to Escape.
+This was the most involved part of the whole process, but unfortunately I failed to document it thoroughly (or ask Claude to do so.)
 
-2. **Input bindings via gptokeyb** — gptokeyb is the PortMaster-standard way to remap gamepad buttons to keyboard/mouse events on a per-handheld basis. Goals:
-   - Map left D-pad to movement (keyboard-style alternative to left stick)
-   - Map right face buttons (ABXY) to secondary fire so players can choose keyboard-style or twin-stick style
-   - Move bomb off the current menu button and move menu off the current face button — bind both to shoulder buttons instead
-   - Map a button to Escape so the axis wizard can be exited
+Compatibility with Portmaster devices requires glibc 2.31.0 or older. However, the oldest bmx-ng aarch64 binaries on Github require glibc 2.32, 2.33, and 2.34. Additionally, compiling bmx-ng relies on an existing working bmx/bmk compiler. I tried using the Github binaries to compile in an Ubuntu 20.04 workspace (with glibc 2.31) but it failed, so I asked Claude to use patchelf to fix the binaries so that they would run in the 20.04 workspace. Then, I used them to bootstrap a "clean" version of bmx-ng, which was used to compile GridWars.
 
-3. **Music** — GridWars never implemented Linux music. `sound.bmx` has an empty `?Linux` block where `StartMusic()` should be. Windows uses BASS (.it tracker files), macOS has an OGG stub. Need to implement OGG or similar for Linux.
-
-4. **GridWars 1 visuals** — The GW2 visuals are considered too busy/ugly. Swap in GW1 assets. (User-side task.)
-
-5. ~~**Auto-detect system resolution**~~ — **Done.** The launch script reads `DISPLAY_WIDTH`/`DISPLAY_HEIGHT` from the PortMaster environment and writes/patches `[Screen Width]`/`[Screen Height]` in Config.txt before every launch. The port now works on devices with different resolutions without any manual Config.txt setup.
+In case anyone ever needs to reproduce this, I'm making a half-assed effort to make it easier by saving compiled bmx-ng aarch64 binaries, version 0.138.3.53, compiled with glibc max version 2.31.0 as well as the modified bmx-ng build script. You will need to clone the full bmx-ng repository from Github and use these to compile it before you are able to compile Gridwars.
 
 ---
+
+# AI notes (not human-reviewed, use with caution)
 
 ## Build Environment
 
