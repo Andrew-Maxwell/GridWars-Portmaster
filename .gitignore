@@ -2,5 +2,7 @@
 .bmx/
 
 # binaries
-gridwars*
-!gridwars.bmx
+gridwars
+
+# portmaster release
+gridwars.zip
