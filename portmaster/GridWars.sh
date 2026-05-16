@@ -19,7 +19,7 @@ source $controlfolder/control.txt
 
 get_controls
 
-GAMEDIR=/$directory/ports/GridWars
+GAMEDIR=/$directory/ports/gridwars
 CONFDIR="$GAMEDIR/conf/"
 BINARY=gridwars
 
