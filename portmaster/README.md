@@ -1,11 +1,12 @@
 GridWars
 ---------------------------------------------------------------------------
-Developer Website:  http://www.incitti.com/Blitz/
+Developer Website:  http://www.incitti.com/
 
 ---------------------------------------------------------------------------
 Programmed by - Mark Incitti 2006
 - extra grid effects code - taumel (see thanks section for more)
 - Retro handhelds port by The Infamous & Notorious Dr. Cliche with help from Claude
+https://github.com/Andrew-Maxwell/GridWars-Portmaster
 ---------------------------------------------------------------------------
 
 Thanks:
