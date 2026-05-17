@@ -923,7 +923,7 @@ Function Options:Int(showgame:Int)
 		Cls
 		xx = MouseX()
 		yy = MouseY()
-		If controltype <> 1 Then yy = -100
+		yy = -100
 		SetLineWidth 2
 		tim = MilliSecs()
 		If showgame Then DrawAllStatic(.9)
@@ -1049,7 +1049,7 @@ Function conf:Int(showgame:Int, st$="")
 		Cls
 		xx = MouseX()
 		yy = MouseY()
-		If controltype <> 1 Then yy = -100
+		yy = -100
 
 		tim = MilliSecs()
 		If showgame Then DrawAllStatic(.8)
@@ -1125,7 +1125,7 @@ Function Settings:Int(showgame:Int)
 		Cls
 		xx = MouseX()
 		yy = MouseY()
-		If controltype <> 1 Then yy = -100
+		yy = -100
 
 		tim = MilliSecs()
 		If showgame Then DrawAllStatic(.8)
@@ -1257,7 +1257,7 @@ Function VideoSettings:Int(showgame:Int)
 		Cls
 		xx = MouseX()
 		yy = MouseY()
-		If controltype <> 1 Then yy = -100
+		yy = -100
 		SetLineWidth 2
 		tim = MilliSecs()
 		If showgame Then DrawAllStatic(.7)
@@ -1569,7 +1569,7 @@ Function GameSettings:Int(showgame:Int)
 		Cls
 		xx = MouseX()
 		yy = MouseY()
-		If controltype <> 1 Then yy = -100
+		yy = -100
 
 		tim = MilliSecs()
 		If showgame Then DrawAllStatic(.7)
@@ -1738,7 +1738,7 @@ Function AudioSettings(showgame:Int)
 		Cls
 		xx = MouseX()
 		yy = MouseY()
-		If controltype <> 1 Then yy = -100
+		yy = -100
 
 		tim = MilliSecs()
 		If showgame Then DrawAllStatic(.7)
@@ -1890,7 +1890,7 @@ Function ControllerSettings:Int(showgame:Int)
 		Cls
 		xx = MouseX()
 		yy = MouseY()
-		If controltype <> 1 Then yy = -100
+		yy = -100
 
 		tim = MilliSecs()
 		If showgame Then DrawAllStatic(.7)
@@ -2013,7 +2013,7 @@ Function HybridControllerSettings(showgame:Int)
 		Cls
 		xx = MouseX()
 		yy = MouseY()
-		If controltype <> 1 Then yy = -100
+		yy = -100
 
 		tim = MilliSecs()
 		If showgame Then DrawAllStatic(.6)
@@ -2153,7 +2153,7 @@ Function MouseControllerSettings(showgame:Int)
 		Cls
 		xx = MouseX()
 		yy = MouseY()
-		If controltype <> 1 Then yy = -100
+		yy = -100
 
 		tim = MilliSecs()
 		If showgame Then DrawAllStatic(.6)
@@ -2276,7 +2276,7 @@ Function KeyboardControllerSettings(showgame:Int)
 		Cls
 		xx = MouseX()
 		yy = MouseY()
-		If controltype <> 1 Then yy = -100
+		yy = -100
 		tim = MilliSecs()
 		If showgame Then DrawAllStatic(.6)
 		SetColor 255,0,0
@@ -2437,7 +2437,7 @@ Function JoypadControllerSettings(showgame:Int)
 		Cls
 		xx= MouseX()
 		yy = MouseY()
-		If controltype <> 1 Then yy = -100
+		yy = -100
 
 		tim = MilliSecs()
 		If showgame Then DrawAllStatic(.6)

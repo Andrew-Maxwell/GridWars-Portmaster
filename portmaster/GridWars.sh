@@ -19,7 +19,7 @@ source $controlfolder/control.txt
 
 get_controls
 
-GAMEDIR=/$directory/ports/gridwars
+GAMEDIR=$(realpath "/$directory/ports/gridwars")
 CONFDIR="$GAMEDIR/conf/"
 BINARY=gridwars
 
@@ -30,6 +30,7 @@ cd $GAMEDIR
 > "$GAMEDIR/log.txt" && exec > >(tee "$GAMEDIR/log.txt") 2>&1
 
 mkdir -p "$HOME/.config/gridwars"
+umount -l "$HOME/.config/gridwars" 2>/dev/null || true
 bind_directories ~/.config/gridwars $GAMEDIR/conf
 
 export SDL_GAMECONTROLLERCONFIG="$sdl_controllerconfig"
@@ -199,6 +200,7 @@ else
     _gw_set_key "$GRIDWARS_CONF" "Screen Width"  "$DISPLAY_WIDTH"
     _gw_set_key "$GRIDWARS_CONF" "Screen Height" "$DISPLAY_HEIGHT"
 fi
+chmod a+rw "$GRIDWARS_CONF"
 
 $GPTOKEYB "$BINARY" -c "./$BINARY.gptk" &
 
